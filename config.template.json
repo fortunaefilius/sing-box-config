@@ -1,0 +1,177 @@
+{
+  "log": {
+    "level": "warn"
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "local-dns",
+        "type": "local",
+        "detour": "direct"
+      },
+      {
+        "tag": "remote-dns",
+        "type": "https",
+        "server": "dns.google",
+        "domain_resolver": "local-dns",
+        "detour": "proxy"
+      },
+      {
+        "tag": "fakeip",
+        "type": "fakeip",
+        "inet4_range": "198.18.0.0/15",
+        "inet6_range": "fc00::/18"
+      }
+    ],
+    "rules": [
+      {
+        "rule_set": "geosite-ads",
+        "action": "reject",
+        "method": "default"
+      },
+      {
+        "rule_set": "geosite-category-ru",
+        "server": "local-dns"
+      },
+      {
+        "domain_suffix": [
+          ".ru",
+          ".su",
+          ".by"
+        ],
+        "server": "local-dns"
+      },
+      {
+        "domain_keyword": [
+          "microsoft",
+          "live.com",
+          "login.live"
+        ],
+        "server": "local-dns"
+      },
+      {
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
+        "server": "fakeip"
+      }
+    ],
+    "final": "remote-dns"
+  },
+  "inbounds": [
+    {
+      "type": "tun",
+      "tag": "tun-in",
+      "interface_name": "tun0",
+      "address": [
+        "172.19.0.1/30",
+        "fdfe:dcba:9876::1/126"
+      ],
+      "mtu": 1500,
+      "auto_route": true,
+      "strict_route": true,
+      "stack": "mixed"
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "vless",
+      "tag": "proxy",
+      "server": "${SERVER_IP}",
+      "server_port": 443,
+      "uuid": "${VLESS_UUID}",
+      "flow": "xtls-rprx-vision",
+      "network": "tcp",
+      "tls": {
+        "enabled": true,
+        "server_name": "${SERVER_SNI}",
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        },
+        "reality": {
+          "enabled": true,
+          "public_key": "${PUBLIC_KEY}",
+          "short_id": "${SHORT_ID}"
+        }
+      }
+    },
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    }
+  ],
+  "route": {
+    "default_domain_resolver": "local-dns",
+    "rule_set": [
+      {
+        "tag": "geosite-ads",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/sing-box/rule-set-geosite/geosite-category-ads-all.srs",
+        "download_detour": "proxy"
+      },
+      {
+        "tag": "geosite-category-ru",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/sing-box/rule-set-geosite/geosite-category-ru.srs",
+        "download_detour": "proxy"
+      },
+      {
+        "tag": "geoip-ru",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/sing-box/rule-set-geoip/geoip-ru.srs",
+        "download_detour": "proxy"
+      }
+    ],
+    "rules": [
+      {
+        "protocol": "quic",
+        "outbound": "block"
+      },
+      {
+        "action": "sniff"
+      },
+      {
+        "protocol": "dns",
+        "action": "hijack-dns"
+      },
+      {
+        "rule_set": "geosite-ads",
+        "outbound": "block"
+      },
+      {
+        "rule_set": [
+          "geosite-category-ru",
+          "geoip-ru"
+        ],
+        "outbound": "direct"
+      },
+      {
+        "domain_suffix": [
+          ".ru",
+          ".su",
+          ".by"
+        ],
+        "outbound": "direct"
+      },
+      {
+        "domain_keyword": [
+          "microsoft",
+          "live.com",
+          "login.live"
+        ],
+        "outbound": "direct"
+      }
+    ],
+    "final": "proxy",
+    "auto_detect_interface": true
+  }
+}
