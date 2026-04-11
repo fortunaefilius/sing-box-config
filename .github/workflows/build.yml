@@ -1,0 +1,35 @@
+name: Build and Deploy Sing-box Config
+
+on:
+  push:
+    branches:
+      - main # Запускать при каждом пуше в ветку main
+    paths:
+      - 'config.template.json' # Запускать только если изменился шаблон
+  workflow_dispatch: # Позволяет запускать Action вручную по кнопке
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Substitute secrets in template
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          VLESS_UUID: ${{ secrets.VLESS_UUID }}
+          PUBLIC_KEY: ${{ secrets.PUBLIC_KEY }}
+          SHORT_ID: ${{ secrets.SHORT_ID }}
+          SERVER_SNI: ${{ secrets.SERVER_SNI }}
+        # envsubst заменяет ${ПЕРЕМЕННЫЕ} в шаблоне на значения из env
+        run: |
+          envsubst < config.template.json > config.json
+
+      - name: Update Secret Gist
+        env:
+          GH_TOKEN: ${{ secrets.GIST_PAT }}
+          GIST_ID: ${{ secrets.GIST_ID }}
+        # Используем встроенную утилиту GitHub CLI для обновления Gist
+        run: |
+          gh gist edit $GIST_ID -f config.json config.json
