@@ -12,8 +12,13 @@
       {
         "tag": "remote-dns",
         "type": "https",
-        "server": "dns.google",
-        "domain_resolver": "local-dns",
+        "server": "1.1.1.1",
+        "detour": "proxy"
+      },
+      {
+        "tag": "backup-dns",
+        "type": "https",
+        "server": "8.8.8.8",
         "detour": "proxy"
       },
       {
@@ -83,9 +88,10 @@
         "server": "fakeip"
       }
     ],
-    "final": "remote-dns"
+    "final": "backup-dns"
   },
   "inbounds":
+
  [
     {
       "type": "tun",
