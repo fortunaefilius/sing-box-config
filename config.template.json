@@ -43,9 +43,35 @@
       },
       {
         "domain_keyword": [
+          "yandex",
+          "yastatic",
+          "yadi.sk",
+          "xn--80aswg",
+          "xn--d1acpjx3f.xn--p1ai",
+          "xn--c1avg",
+          "xn--80asehdb",
+          "xn--p1acf",
+          "xn--p1ai",
+          "google.com",
+          "gstatic.com",
+          "yahoo",
+          "bing",
+          "tineye",
+          "duckduckgo",
+          "apple",
+          "vk.com",
+          "userapi.com",
+          "vk-cdn.me",
+          "mvk.com",
+          "vk-cdn.net",
+          "vk-portal.net",
+          "vk.cc",
+          "icq",
+          "livejournal",
           "microsoft",
           "live.com",
-          "login.live"
+          "login.live",
+          "tradingview"
         ],
         "server": "local-dns"
       },
@@ -59,7 +85,8 @@
     ],
     "final": "remote-dns"
   },
-  "inbounds": [
+  "inbounds":
+ [
     {
       "type": "tun",
       "tag": "tun-in",
@@ -68,7 +95,7 @@
         "172.19.0.1/30",
         "fdfe:dcba:9876::1/126"
       ],
-      "mtu": 1500,
+      "mtu": 1400,
       "auto_route": true,
       "strict_route": true,
       "stack": "mixed"
@@ -164,9 +191,35 @@
       },
       {
         "domain_keyword": [
+          "yandex",
+          "yastatic",
+          "yadi.sk",
+          "xn--80aswg",
+          "xn--d1acpjx3f.xn--p1ai",
+          "xn--c1avg",
+          "xn--80asehdb",
+          "xn--p1acf",
+          "xn--p1ai",
+          "google.com",
+          "gstatic.com",
+          "yahoo",
+          "bing",
+          "tineye",
+          "duckduckgo",
+          "apple",
+          "vk.com",
+          "userapi.com",
+          "vk-cdn.me",
+          "mvk.com",
+          "vk-cdn.net",
+          "vk-portal.net",
+          "vk.cc",
+          "icq",
+          "livejournal",
           "microsoft",
           "live.com",
-          "login.live"
+          "login.live",
+          "tradingview"
         ],
         "outbound": "direct"
       }
