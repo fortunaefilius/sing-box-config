@@ -1,6 +1,6 @@
 {
   "log": {
-    "level": "warn"
+    "level": "info"
   },
   "dns": {
     "servers": [
@@ -67,6 +67,7 @@
           "by",
           "xn--p1ai",
           "yandex.ru",
+          "dzen.ru",
           "ya.ru",
           "yastatic.net",
           "yadi.sk",
@@ -130,7 +131,8 @@
     },
     {
       "type": "direct",
-      "tag": "direct"
+      "tag": "direct",
+      "domain_strategy": "ipv4_only"
     },
     {
       "type": "block",
@@ -227,6 +229,7 @@
           "by",
           "xn--p1ai",
           "yandex.ru",
+          "dzen.ru",
           "ya.ru",
           "yastatic.net",
           "yadi.sk",
