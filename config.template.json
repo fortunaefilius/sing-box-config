@@ -90,8 +90,7 @@
     ],
     "final": "backup-dns"
   },
-  "inbounds":
- [
+  "inbounds": [
     {
       "type": "tun",
       "tag": "tun-in",
@@ -194,7 +193,7 @@
           "amplitude.com",
           "mixpanel.com",
           "adjust.com",
-          "appsflyer.com",
+          "appsflyer.com"
         ],
         "action": "reject"
       },
