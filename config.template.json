@@ -13,14 +13,12 @@
         "tag": "remote-dns",
         "type": "https",
         "server": "1.1.1.1",
-        "server_name": "cloudflare-dns.com",
         "detour": "proxy"
       },
       {
         "tag": "backup-dns",
         "type": "https",
         "server": "8.8.8.8",
-        "server_name": "dns.google",
         "detour": "proxy"
       }
     ],
