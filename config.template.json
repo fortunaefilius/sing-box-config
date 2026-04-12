@@ -13,19 +13,15 @@
         "tag": "remote-dns",
         "type": "https",
         "server": "1.1.1.1",
+        "server_name": "cloudflare-dns.com",
         "detour": "proxy"
       },
       {
         "tag": "backup-dns",
         "type": "https",
         "server": "8.8.8.8",
+        "server_name": "dns.google",
         "detour": "proxy"
-      },
-      {
-        "tag": "fakeip",
-        "type": "fakeip",
-        "inet4_range": "198.18.0.0/15",
-        "inet6_range": "fc00::/18"
       }
     ],
     "rules": [
@@ -68,31 +64,16 @@
       },
       {
         "domain_suffix": [
-          ".ru",
-          ".su",
-          ".by"
-        ],
-        "server": "local-dns"
-      },
-     {
-        "domain_keyword": [
-          "yandex",
-          "yastatic",
-          "yadi.sk",
-          "xn--80aswg",
-          "xn--d1acpjx3f.xn--p1ai",
-          "xn--c1avg",
-          "xn--80asehdb",
-          "xn--p1acf",
+          "ru",
+          "su",
+          "by",
           "xn--p1ai",
-          "icq",
-          "livejournal",
-          "microsoft"
-        ],
-        "server": "local-dns"
-      },
-      {
-        "domain_suffix": [
+          "yandex.ru",
+          "ya.ru",
+          "yastatic.net",
+          "yadi.sk",
+          "icq.com",
+          "livejournal.com",
           "vk.com",
           "userapi.com",
           "vk-cdn.me",
@@ -100,36 +81,16 @@
           "vk-cdn.net",
           "vk-portal.net",
           "vk.cc",
-          "windowsupdate.com",
-          "google.com",
-          "live.com",
-          "login.live",
-          "icloud.com",
-          "apple.com",
-          "cloudflare.com",
-          "akamai.net",
-          "firebase.io",
-          "firebaseio.com",
-          "firebaseapp.com",
-          "fcm.googleapis.com",
-          "firebaseinstallations.googleapis.com",
-          "android.googleapis.com",
-          "play-fe.googleapis.com",
-          "gstatic.com",
-          "googleusercontent.com",
-          "play.googleapis.com"
+          "connectivitycheck.gstatic.com",
+          "captive.apple.com",
+          "time.android.com",
+          "time.windows.com",
+          "pool.ntp.org"
         ],
         "server": "local-dns"
-      },
-      {
-        "query_type": [
-          "A",
-          "AAAA"
-        ],
-        "server": "fakeip"
       }
     ],
-    "final": "backup-dns"
+    "final": "remote-dns"
   },
   "inbounds": [
     {
@@ -186,29 +147,27 @@
         "type": "remote",
         "format": "binary",
         "url": "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/sing-box/rule-set-geosite/geosite-category-ads-all.srs",
-        "download_detour": "proxy"
+        "download_detour": "proxy",
+        "update_interval": "24h"
       },
       {
         "tag": "geosite-category-ru",
         "type": "remote",
         "format": "binary",
         "url": "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/sing-box/rule-set-geosite/geosite-category-ru.srs",
-        "download_detour": "proxy"
+        "download_detour": "proxy",
+        "update_interval": "24h"
       },
       {
         "tag": "geoip-ru",
         "type": "remote",
         "format": "binary",
         "url": "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/sing-box/rule-set-geoip/geoip-ru.srs",
-        "download_detour": "proxy"
+        "download_detour": "proxy",
+        "update_interval": "24h"
       }
     ],
     "rules": [
-      {
-        "network": "udp",
-        "port": 443,
-        "action": "reject"
-      },
       {
         "action": "sniff"
       },
@@ -217,8 +176,18 @@
         "action": "hijack-dns"
       },
       {
+        "ip_is_private": true,
+        "outbound": "direct"
+      },
+      {
+        "ip_cidr": [
+          "${SERVER_IP}/32"
+        ],
+        "outbound": "direct"
+      },
+      {
         "rule_set": "geosite-ads",
-        "action":"reject"
+        "action": "reject"
       },
       {
         "domain_keyword": [
@@ -255,56 +224,39 @@
       },
       {
         "domain_suffix": [
-          ".ru",
-          ".su",
-          ".by"
-        ],
-        "outbound": "direct"
-      },
-      {
-        "domain_keyword": [
-          "yandex",
-          "yastatic",
-          "yadi.sk",
-          "xn--80aswg",
-          "xn--d1acpjx3f.xn--p1ai",
-          "xn--c1avg",
-          "xn--80asehdb",
-          "xn--p1acf",
+          "ru",
+          "su",
+          "by",
           "xn--p1ai",
-          "icq",
-          "livejournal",
-          "microsoft"
-        ],
-        "outbound": "direct"
-      },
-      {
-        "domain_suffix": [
+          "yandex.ru",
+          "ya.ru",
+          "yastatic.net",
+          "yadi.sk",
+          "icq.com",
+          "livejournal.com",
           "vk.com",
           "userapi.com",
           "vk-cdn.me",
           "mvk.com",
           "vk-cdn.net",
           "vk-portal.net",
-          "vk.cc",
-          "windowsupdate.com",
-          "google.com",
-          "live.com",
-          "login.live",
-          "icloud.com",
-          "apple.com",
-          "cloudflare.com",
-          "akamai.net",
-          "firebase.io",
-          "firebaseio.com",
-          "firebaseapp.com",
+          "vk.cc"
+        ],
+        "outbound": "direct"
+      },
+      {
+        "domain_suffix": [
           "fcm.googleapis.com",
           "firebaseinstallations.googleapis.com",
           "android.googleapis.com",
           "play-fe.googleapis.com",
-          "gstatic.com",
-          "googleusercontent.com",
-          "play.googleapis.com"
+          "play.googleapis.com",
+          "windowsupdate.com",
+          "connectivitycheck.gstatic.com",
+          "captive.apple.com",
+          "time.android.com",
+          "time.windows.com",
+          "pool.ntp.org"
         ],
         "outbound": "direct"
       }
