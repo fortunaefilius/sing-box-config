@@ -35,6 +35,34 @@
         "method": "default"
       },
       {
+        "domain_keyword": [
+          "ymetrica",
+          "hotjar"
+        ],
+        "action": "reject",
+        "method": "default"
+      },
+      {
+        "domain_suffix": [
+          "mc.yandex.ru",
+          "google-analytics.com",
+          "googletagmanager.com",
+          "app-measurement.com",
+          "doubleclick.net",
+          "googlesyndication.com",
+          "appcenter.ms",
+          "crashlytics.com",
+          "sentry.io",
+          "amplitude.com",
+          "mixpanel.com",
+          "adjust.com",
+          "appsflyer.com",
+          "segment.io"
+        ],
+        "action": "reject",
+        "method": "default"
+      },
+      {
         "rule_set": "geosite-category-ru",
         "server": "local-dns"
       },
@@ -46,7 +74,7 @@
         ],
         "server": "local-dns"
       },
-      {
+     {
         "domain_keyword": [
           "yandex",
           "yastatic",
@@ -57,13 +85,14 @@
           "xn--80asehdb",
           "xn--p1acf",
           "xn--p1ai",
-          "google.com",
-          "gstatic.com",
-          "yahoo",
-          "bing",
-          "tineye",
-          "duckduckgo",
-          "apple",
+          "icq",
+          "livejournal",
+          "microsoft"
+        ],
+        "server": "local-dns"
+      },
+      {
+        "domain_suffix": [
           "vk.com",
           "userapi.com",
           "vk-cdn.me",
@@ -71,12 +100,24 @@
           "vk-cdn.net",
           "vk-portal.net",
           "vk.cc",
-          "icq",
-          "livejournal",
-          "microsoft",
+          "windowsupdate.com",
+          "google.com",
           "live.com",
           "login.live",
-          "tradingview"
+          "icloud.com",
+          "apple.com",
+          "cloudflare.com",
+          "akamai.net",
+          "firebase.io",
+          "firebaseio.com",
+          "firebaseapp.com",
+          "fcm.googleapis.com",
+          "firebaseinstallations.googleapis.com",
+          "android.googleapis.com",
+          "play-fe.googleapis.com",
+          "gstatic.com",
+          "googleusercontent.com",
+          "play.googleapis.com"
         ],
         "server": "local-dns"
       },
@@ -166,7 +207,7 @@
       {
         "network": "udp",
         "port": 443,
-        "outbound": "block"
+        "action": "reject"
       },
       {
         "action": "sniff"
@@ -177,23 +218,31 @@
       },
       {
         "rule_set": "geosite-ads",
-        "outbound": "block"
+        "action":"reject"
       },
       {
         "domain_keyword": [
           "ymetrica",
-          "google-analytics",
-          "facebook.com",
-          "instagram.com",
-          "twitter.com",
+          "hotjar"
+        ],
+        "action": "reject"
+      },
+      {
+        "domain_suffix": [
+          "mc.yandex.ru",
+          "google-analytics.com",
+          "googletagmanager.com",
+          "app-measurement.com",
+          "doubleclick.net",
+          "googlesyndication.com",
           "appcenter.ms",
-          "firebase.io",
           "crashlytics.com",
           "sentry.io",
           "amplitude.com",
           "mixpanel.com",
           "adjust.com",
-          "appsflyer.com"
+          "appsflyer.com",
+          "segment.io"
         ],
         "action": "reject"
       },
@@ -223,13 +272,14 @@
           "xn--80asehdb",
           "xn--p1acf",
           "xn--p1ai",
-          "google.com",
-          "gstatic.com",
-          "yahoo",
-          "bing",
-          "tineye",
-          "duckduckgo",
-          "apple",
+          "icq",
+          "livejournal",
+          "microsoft"
+        ],
+        "outbound": "direct"
+      },
+      {
+        "domain_suffix": [
           "vk.com",
           "userapi.com",
           "vk-cdn.me",
@@ -237,12 +287,24 @@
           "vk-cdn.net",
           "vk-portal.net",
           "vk.cc",
-          "icq",
-          "livejournal",
-          "microsoft",
+          "windowsupdate.com",
+          "google.com",
           "live.com",
           "login.live",
-          "tradingview"
+          "icloud.com",
+          "apple.com",
+          "cloudflare.com",
+          "akamai.net",
+          "firebase.io",
+          "firebaseio.com",
+          "firebaseapp.com",
+          "fcm.googleapis.com",
+          "firebaseinstallations.googleapis.com",
+          "android.googleapis.com",
+          "play-fe.googleapis.com",
+          "gstatic.com",
+          "googleusercontent.com",
+          "play.googleapis.com"
         ],
         "outbound": "direct"
       }
