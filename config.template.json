@@ -139,7 +139,7 @@
     }
   ],
   "route": {
-    "default_domain_resolver": "local-dns",
+    "default_domain_resolver": "remote-dns",
     "rule_set": [
       {
         "tag": "geosite-ads",
@@ -191,19 +191,10 @@
           "firebase.io",
           "crashlytics.com",
           "sentry.io",
-          "rollbar.com",
-          "bugsnag.com",
           "amplitude.com",
           "mixpanel.com",
-          "segment.com",
-          "hotjar.com",
-          "intercom.io",
           "adjust.com",
           "appsflyer.com",
-          "branch.io",
-          "datadog.com",
-          "loggly.com",
-          "papertrail.com"
         ],
         "action": "reject"
       },
