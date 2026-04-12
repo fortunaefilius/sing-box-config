@@ -181,6 +181,33 @@
         "outbound": "block"
       },
       {
+        "domain_keyword": [
+          "ymetrica",
+          "google-analytics",
+          "facebook.com",
+          "instagram.com",
+          "twitter.com",
+          "appcenter.ms",
+          "firebase.io",
+          "crashlytics.com",
+          "sentry.io",
+          "rollbar.com",
+          "bugsnag.com",
+          "amplitude.com",
+          "mixpanel.com",
+          "segment.com",
+          "hotjar.com",
+          "intercom.io",
+          "adjust.com",
+          "appsflyer.com",
+          "branch.io",
+          "datadog.com",
+          "loggly.com",
+          "papertrail.com"
+        ],
+        "action": "reject"
+      },
+      {
         "rule_set": [
           "geosite-category-ru",
           "geoip-ru"
