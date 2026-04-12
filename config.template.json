@@ -1,6 +1,6 @@
 {
   "log": {
-    "level": "info"
+    "level": "warn"
   },
   "dns": {
     "servers": [
@@ -20,6 +20,11 @@
         "type": "https",
         "server": "8.8.8.8",
         "detour": "proxy"
+      },
+      {
+        "tag": "block-ipv6",
+        "type": "rcode",
+        "rcode": "success"
       }
     ],
     "rules": [
@@ -57,6 +62,35 @@
         "method": "default"
       },
       {
+        "query_type": ["AAAA"],
+        "rule_set": "geosite-category-ru",
+        "server": "block-ipv6"
+      },
+      {
+        "query_type": ["AAAA"],
+        "domain_suffix": [
+          "ru",
+          "su",
+          "by",
+          "xn--p1ai",
+          "yandex.ru",
+          "ya.ru",
+          "dzen.ru",
+          "yastatic.net",
+          "yadi.sk",
+          "icq.com",
+          "livejournal.com",
+          "vk.com",
+          "userapi.com",
+          "vk-cdn.me",
+          "mvk.com",
+          "vk-cdn.net",
+          "vk-portal.net",
+          "vk.cc"
+        ],
+        "server": "block-ipv6"
+      },
+      {
         "rule_set": "geosite-category-ru",
         "server": "local-dns"
       },
@@ -67,8 +101,8 @@
           "by",
           "xn--p1ai",
           "yandex.ru",
-          "dzen.ru",
           "ya.ru",
+          "dzen.ru",
           "yastatic.net",
           "yadi.sk",
           "icq.com",
@@ -232,8 +266,8 @@
           "by",
           "xn--p1ai",
           "yandex.ru",
-          "dzen.ru",
           "ya.ru",
+          "dzen.ru",
           "yastatic.net",
           "yadi.sk",
           "icq.com",
