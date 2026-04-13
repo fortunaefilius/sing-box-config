@@ -7,24 +7,22 @@
       {
         "tag": "local-dns",
         "type": "local",
-        "detour": "direct"
+        "detour": "direct",
+        "strategy": "ipv4_only"
       },
       {
         "tag": "remote-dns",
         "type": "https",
         "server": "1.1.1.1",
-        "detour": "proxy"
+        "detour": "proxy",
+        "strategy": "ipv4_only"
       },
       {
         "tag": "backup-dns",
         "type": "https",
         "server": "8.8.8.8",
-        "detour": "proxy"
-      },
-      {
-        "tag": "block-ipv6",
-        "type": "rcode",
-        "rcode": "success"
+        "detour": "proxy",
+        "strategy": "ipv4_only"
       }
     ],
     "rules": [
@@ -60,35 +58,6 @@
         ],
         "action": "reject",
         "method": "default"
-      },
-      {
-        "query_type": ["AAAA"],
-        "rule_set": "geosite-category-ru",
-        "server": "block-ipv6"
-      },
-      {
-        "query_type": ["AAAA"],
-        "domain_suffix": [
-          "ru",
-          "su",
-          "by",
-          "xn--p1ai",
-          "yandex.ru",
-          "ya.ru",
-          "dzen.ru",
-          "yastatic.net",
-          "yadi.sk",
-          "icq.com",
-          "livejournal.com",
-          "vk.com",
-          "userapi.com",
-          "vk-cdn.me",
-          "mvk.com",
-          "vk-cdn.net",
-          "vk-portal.net",
-          "vk.cc"
-        ],
-        "server": "block-ipv6"
       },
       {
         "rule_set": "geosite-category-ru",
@@ -130,14 +99,14 @@
       "type": "tun",
       "tag": "tun-in",
       "interface_name": "tun0",
-      "address": [
-        "172.19.0.1/30",
-        "fdfe:dcba:9876::1/126"
-      ],
+      "inet4_address": "172.19.0.1/30",
+      "inet6_address": "fdfe:dcba:9876::1/126",
       "mtu": 1400,
       "auto_route": true,
       "strict_route": true,
-      "stack": "mixed"
+      "stack": "mixed",
+      "sniff": true,
+      "sniff_override_destination": true
     }
   ],
   "outbounds": [
@@ -149,6 +118,7 @@
       "uuid": "${VLESS_UUID}",
       "flow": "xtls-rprx-vision",
       "network": "tcp",
+      "packet_encoding": "xudp",
       "tls": {
         "enabled": true,
         "server_name": "${SERVER_SNI}",
@@ -202,10 +172,15 @@
     ],
     "rules": [
       {
-        "action": "sniff"
+        "ip_version": 6,
+        "action": "reject"
       },
       {
         "protocol": "dns",
+        "action": "hijack-dns"
+      },
+      {
+        "port": 53,
         "action": "hijack-dns"
       },
       {
