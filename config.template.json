@@ -1,6 +1,6 @@
 {
   "log": {
-    "level": "info"
+    "level": "warn"
   },
   "dns": {
     "strategy": "ipv4_only",
@@ -116,7 +116,6 @@
       "uuid": "${VLESS_UUID}",
       "flow": "xtls-rprx-vision",
       "network": "tcp",
-      "packet_encoding": "xudp",
       "tls": {
         "enabled": true,
         "server_name": "${SERVER_SNI}",
@@ -174,6 +173,11 @@
       },
       {
         "ip_version": 6,
+        "action": "reject"
+      },
+      {
+        "network": "udp",
+        "port": 443,
         "action": "reject"
       },
       {
