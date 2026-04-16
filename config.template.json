@@ -3,6 +3,7 @@
     "level": "warn"
   },
   "dns": {
+stra
     "servers": [
       {
         "tag": "local-dns",
