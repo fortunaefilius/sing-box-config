@@ -3,11 +3,6 @@
     "level": "warn"
   },
   "dns": {
-    "fakeip": {
-      "enabled": true,
-      "inet4_range": "198.18.0.0/15",
-      "inet6_range": "fc00::/18"
-    },
     "servers": [
       {
         "tag": "local-dns",
@@ -28,7 +23,9 @@
       },
       {
         "tag": "fakeip-dns",
-        "type": "fakeip"
+        "type": "fakeip",
+        "inet4_range": "198.18.0.0/15",
+        "inet6_range": "fc00::/18"
       }
     ],
     "rules": [
