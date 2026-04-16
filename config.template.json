@@ -8,22 +8,19 @@
       {
         "tag": "local-dns",
         "type": "local",
-        "detour": "direct",
-        "strategy": "ipv4_only"
+        "detour": "direct"
       },
       {
         "tag": "remote-dns",
         "type": "https",
         "server": "1.1.1.1",
-        "detour": "proxy",
-        "strategy": "prefer_ipv4"
+        "detour": "proxy"
       },
       {
         "tag": "backup-dns",
         "type": "https",
         "server": "8.8.8.8",
-        "detour": "proxy",
-        "strategy": "prefer_ipv4"
+        "detour": "proxy"
       }
     ],
     "rules": [
@@ -62,7 +59,8 @@
       },
       {
         "rule_set": "geosite-category-ru",
-        "server": "local-dns"
+        "server": "local-dns",
+        "strategy": "ipv4_only"
       },
       {
         "domain_suffix": [
@@ -75,7 +73,8 @@
           "time.windows.com",
           "pool.ntp.org"
         ],
-        "server": "local-dns"
+        "server": "local-dns",
+        "strategy": "ipv4_only"
       }
     ],
     "final": "remote-dns"
@@ -181,7 +180,6 @@
         ],
         "action": "reject"
       },
-
       {
         "ip_version": 6,
         "ip_cidr": [
@@ -199,14 +197,12 @@
         ],
         "outbound": "direct"
       },
-
       {
         "ip_cidr": [
           "${SERVER_IP}/32"
         ],
         "outbound": "direct"
       },
-
       {
         "rule_set": "geosite-ads",
         "action": "reject"
@@ -237,7 +233,6 @@
         ],
         "action": "reject"
       },
-
       {
         "ip_version": 6,
         "rule_set": [
@@ -253,7 +248,6 @@
         ],
         "outbound": "direct"
       },
-
       {
         "ip_version": 6,
         "domain_suffix": [
