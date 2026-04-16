@@ -3,19 +3,7 @@
     "level": "warn"
   },
   "dns": {
-    "strategy": "prefer_ipv4",
     "servers": [
-      {
-        "tag": "local-dns",
-        "type": "local",
-        "detour": "direct"
-      },
-      {
-        "tag": "remote-dns",
-        "type": "https",
-        "server": "1.1.1.1",
-        "detour": "proxy"
-      },
       {
         "tag": "backup-dns",
         "type": "https",
