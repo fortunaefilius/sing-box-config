@@ -4,6 +4,7 @@
   },
   "dns": {
     "strategy": "prefer_ipv6",
+    sdafsd
     "servers": [
       {
         "tag": "local-dns",
