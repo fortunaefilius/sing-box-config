@@ -5,6 +5,17 @@
   "dns": {
     "servers": [
       {
+        "tag": "local-dns",
+        "type": "local",
+        "detour": "direct"
+      },
+      {
+        "tag": "remote-dns",
+        "type": "https",
+        "server": "1.1.1.1",
+        "detour": "proxy"
+      },
+      {
         "tag": "backup-dns",
         "type": "https",
         "server": "8.8.8.8",
