@@ -31,16 +31,14 @@
     "rules": [
       {
         "rule_set": "geosite-ads",
-        "action": "reject",
-        "method": "default"
+        "action": "reject"
       },
       {
         "domain_keyword": [
           "ymetrica",
           "hotjar"
         ],
-        "action": "reject",
-        "method": "default"
+        "action": "reject"
       },
       {
         "domain_suffix": [
@@ -59,8 +57,7 @@
           "appsflyer.com",
           "segment.io"
         ],
-        "action": "reject",
-        "method": "default"
+        "action": "reject"
       },
       {
         "rule_set": "geosite-category-ru",
@@ -104,8 +101,7 @@
       "mtu": 1400,
       "auto_route": true,
       "strict_route": true,
-      "stack": "mixed",
-      "sniff": true
+      "stack": "mixed"
     }
   ],
   "outbounds": [
@@ -142,6 +138,7 @@
   ],
   "route": {
     "default_domain_resolver": "remote-dns",
+    "auto_detect_interface": true,
     "rule_set": [
       {
         "tag": "geosite-ads",
@@ -187,11 +184,10 @@
       },
       {
         "ip_cidr": [
-        "198.18.0.0/15",
-        "fc00::/18"
+          "198.18.0.0/15",
+          "fc00::/18"
         ],
-        "action": "route",
-        "outbound": "proxy" 
+        "outbound": "proxy"
       },
       {
         "ip_version": 6,
@@ -288,7 +284,6 @@
         "outbound": "direct"
       }
     ],
-    "final": "proxy",
-    "auto_detect_interface": true
+    "final": "proxy"
   }
 }
