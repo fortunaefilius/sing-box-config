@@ -3,6 +3,7 @@
     "level": "warn"
   },
   "dns": {
+    "strategy": "prefer_ipv4",
     "servers": [
       {
         "tag": "local-dns",
