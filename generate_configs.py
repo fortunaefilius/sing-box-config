@@ -3,7 +3,6 @@ import json
 import urllib.parse
 import requests
 
-# Считываем секреты из окружения GitHub Actions
 GIST_TOKEN = os.environ.get('GIST_TOKEN')
 MASTER_GIST_ID = os.environ.get('MASTER_GIST_ID')
 CONNECTIONS_GIST_ID = os.environ.get('CONNECTIONS_GIST_ID')
@@ -15,7 +14,7 @@ HEADERS = {
 }
 
 def main():
-    # 1. Читаем ваш прикрепленный темплейт
+    # 1. Читаем темплейт
     with open('config.template.json', 'r', encoding='utf-8') as f:
         template_str = f.read()
 
@@ -25,49 +24,78 @@ def main():
         conn_response = requests.get(conn_gist_url, headers=HEADERS)
         conn_response.raise_for_status()
         
-        # Получаем содержимое первого файла в гисте
         files = conn_response.json().get('files', {})
         first_file_key = list(files.keys())[0] 
         vless_links_raw = files[first_file_key]['content']
         vless_links = json.loads(vless_links_raw)
-        
     except Exception as e:
-        print(f"Ошибка при получении или парсинге списка ссылок из Gist: {e}")
+        print(f"Ошибка при получении списка ссылок: {e}")
         return
 
-    # 3. Получаем текущее состояние Мастер-гиста (configs.json)
-    master_gist_url = f"https://api.github.com/gists/{MASTER_GIST_ID}"
-    response = requests.get(master_gist_url, headers=HEADERS)
-    response.raise_for_status()
-    master_files = response.json().get('files', {})
-    
+    # 3. Умная обработка Мастер-гиста (configs.json)
     configs_map = {}
-    if 'configs.json' in master_files:
-        try:
-            parsed_content = json.loads(master_files['configs.json']['content'])
-            # Защита: убеждаемся, что внутри именно словарь (dict)
-            if isinstance(parsed_content, dict):
-                configs_map = parsed_content
-            else:
-                print("Внимание: configs.json имеет неверный формат. Начинаем с чистого листа.")
-        except json.JSONDecodeError:
-            print("Мастер-гист пуст или содержит невалидный JSON, начинаем с чистого листа.")
+    master_gist_url = None
+    needs_new_master = False
+
+    if MASTER_GIST_ID:
+        master_gist_url = f"https://api.github.com/gists/{MASTER_GIST_ID}"
+        response = requests.get(master_gist_url, headers=HEADERS)
+        
+        if response.status_code == 200:
+            master_files = response.json().get('files', {})
+            if 'configs.json' in master_files:
+                content = master_files['configs.json'].get('content', '{}')
+                try:
+                    parsed_content = json.loads(content)
+                    if isinstance(parsed_content, dict):
+                        configs_map = parsed_content
+                except json.JSONDecodeError:
+                    pass
+        elif response.status_code == 404:
+            print("Внимание: Мастер-гист по указанному ID не найден (вероятно, удален).")
+            needs_new_master = True
+        else:
+            response.raise_for_status()
+    else:
+        needs_new_master = True
+
+    # Создаем новый Мастер-гист, если ID не указан или старый удален
+    if needs_new_master:
+        print("Создание нового Мастер-гиста...")
+        payload = {
+            "description": "VLESS Master Configs Map",
+            "public": False,
+            "files": {"configs.json": {"content": "{}"}}
+        }
+        create_resp = requests.post("https://api.github.com/gists", headers=HEADERS, json=payload)
+        create_resp.raise_for_status()
+        new_gist = create_resp.json()
+        master_gist_url = new_gist['url']
+        
+        # --- ГЕНЕРАЦИЯ GITHUB ACTIONS WARNING ---
+        warning_msg = f"Был создан новый Мастер-гист. Новый ID: {new_gist['id']}. Обновите секрет MASTER_GIST_ID, чтобы зафиксировать ссылку."
+        print(f"::warning title=Требуется обновление секрета MASTER_GIST_ID::{warning_msg}")
+        # ----------------------------------------
+
+        print("\n" + "="*50)
+        print("⚠️ ВАЖНО: БЫЛ СОЗДАН НОВЫЙ МАСТЕР-ГИСТ!")
+        print(f"Постоянная ссылка: {new_gist['html_url']}")
+        print(f"Новый ID: {new_gist['id']}")
+        print("Пожалуйста, добавьте или обновите секрет MASTER_GIST_ID в настройках репозитория этим новым ID!")
+        print("="*50 + "\n")
 
     # 4. Обрабатываем каждую VLESS ссылку
     for link in vless_links:
-        # Игнорируем пустые строки или невалидные данные
         if not isinstance(link, str) or not link.startswith("vless://"):
             continue
             
         parsed = urllib.parse.urlparse(link)
         params = urllib.parse.parse_qs(parsed.query)
         
-        # Извлекаем компоненты ссылки
         uuid = parsed.username
         server_ip = parsed.hostname
         name = urllib.parse.unquote(parsed.fragment)
         
-        # Параметры Reality
         sni = params.get('sni', [''])[0]
         pbk = params.get('pbk', [''])[0]
         sid = params.get('sid', [''])[0]
@@ -75,7 +103,6 @@ def main():
         if not name:
             name = f"Unnamed_VLESS_{server_ip}"
 
-        # 5. Подставляем значения в плейсхолдеры
         config_content = template_str.replace('${VLESS_UUID}', str(uuid)) \
                                      .replace('${SERVER_IP}', str(server_ip)) \
                                      .replace('${SERVER_SNI}', str(sni)) \
@@ -92,25 +119,23 @@ def main():
             }
         }
 
-        # 6. Проверяем существование Gist с надежной проверкой типов
+        # 5. Проверяем существование Gist в нашей карте
         is_existing = False
         if name in configs_map and isinstance(configs_map[name], dict) and 'gist_id' in configs_map[name]:
             is_existing = True
 
-        # 7. Создаем или обновляем Gist
+        # 6. Создаем или обновляем конфиги с самовосстановлением (404)
         if is_existing:
             gist_id = configs_map[name]['gist_id']
             print(f"Обновление Gist для '{name}'...")
             update_resp = requests.patch(f"https://api.github.com/gists/{gist_id}", headers=HEADERS, json=gist_payload)
-
-            # Если Gist был удален вручную, GitHub вернет 404
+            
             if update_resp.status_code == 404:
-                print(f"Внимание: Gist для '{name}' не найден (возможно, удален). Создаем новый...")
+                print(f"Gist для '{name}' удален. Создаем новый...")
                 create_resp = requests.post("https://api.github.com/gists", headers=HEADERS, json=gist_payload)
                 create_resp.raise_for_status()
                 new_gist = create_resp.json()
-
-                # Обновляем ID в нашей карте
+                
                 configs_map[name] = {
                     "name": name,
                     "gist_url": new_gist['html_url'],
@@ -118,15 +143,13 @@ def main():
                     "gist_id": new_gist['id']
                 }
             else:
-                # Если ошибка другая (не 404), останавливаем скрипт
                 update_resp.raise_for_status()
         else:
             print(f"Создание нового Gist для '{name}'...")
             create_resp = requests.post("https://api.github.com/gists", headers=HEADERS, json=gist_payload)
             create_resp.raise_for_status()
             new_gist = create_resp.json()
-
-            # Сохраняем ссылки для мастера
+            
             configs_map[name] = {
                 "name": name,
                 "gist_url": new_gist['html_url'],
@@ -134,7 +157,7 @@ def main():
                 "gist_id": new_gist['id']
             }
 
-    # 8. Записываем обновленный список ссылок обратно в Мастер-гист
+    # 7. Сохраняем результат
     print("Сохранение списка конфигураций в configs.json...")
     master_payload = {
         "files": {
