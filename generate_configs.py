@@ -72,16 +72,16 @@ def main():
         new_gist = create_resp.json()
         master_gist_url = new_gist['url']
         
-        # --- ГЕНЕРАЦИЯ GITHUB ACTIONS WARNING ---
-        warning_msg = f"Был создан новый Мастер-гист. Новый ID: {new_gist['id']}. Обновите секрет MASTER_GIST_ID, чтобы зафиксировать ссылку."
+        # --- БЕЗОПАСНАЯ ГЕНЕРАЦИЯ GITHUB ACTIONS WARNING ---
+        warning_msg = "Был создан новый Мастер-гист. В целях безопасности его ID скрыт. Пожалуйста, найдите новый Gist в своем профиле и обновите секрет MASTER_GIST_ID."
         print(f"::warning title=Требуется обновление секрета MASTER_GIST_ID::{warning_msg}")
         # ----------------------------------------
 
         print("\n" + "="*50)
         print("⚠️ ВАЖНО: БЫЛ СОЗДАН НОВЫЙ МАСТЕР-ГИСТ!")
-        print(f"Постоянная ссылка: {new_gist['html_url']}")
-        print(f"Новый ID: {new_gist['id']}")
-        print("Пожалуйста, добавьте или обновите секрет MASTER_GIST_ID в настройках репозитория этим новым ID!")
+        print("Новый Gist успешно создан, но так как репозиторий публичный, ID скрыт из логов.")
+        print("Зайдите на https://gist.github.com/, найдите Gist с описанием 'VLESS Master Configs Map'")
+        print("и скопируйте его ID для обновления секрета MASTER_GIST_ID!")
         print("="*50 + "\n")
 
     # 4. Обрабатываем каждую VLESS ссылку
