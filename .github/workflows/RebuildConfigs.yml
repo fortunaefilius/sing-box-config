@@ -4,7 +4,10 @@ on:
   push:
     paths:
       - 'config.template.json'
-  workflow_dispatch: # Оставляем возможность запускать вручную
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-and-publish:
@@ -26,7 +29,5 @@ jobs:
         env:
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           MASTER_GIST_ID: ${{ secrets.MASTER_GIST_ID }}
-          CONNECTIONS_GIST_ID: ${{ secrets.CONNECTIONS_GIST_ID }} 
+          CONNECTIONS_GIST_ID: ${{ secrets.CONNECTIONS_GIST_ID }}
         run: python generate_configs.py
-
-        
