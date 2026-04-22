@@ -102,13 +102,30 @@ def main():
             gist_id = configs_map[name]['gist_id']
             print(f"Обновление Gist для '{name}'...")
             update_resp = requests.patch(f"https://api.github.com/gists/{gist_id}", headers=HEADERS, json=gist_payload)
-            update_resp.raise_for_status()
+
+            # Если Gist был удален вручную, GitHub вернет 404
+            if update_resp.status_code == 404:
+                print(f"Внимание: Gist для '{name}' не найден (возможно, удален). Создаем новый...")
+                create_resp = requests.post("https://api.github.com/gists", headers=HEADERS, json=gist_payload)
+                create_resp.raise_for_status()
+                new_gist = create_resp.json()
+
+                # Обновляем ID в нашей карте
+                configs_map[name] = {
+                    "name": name,
+                    "gist_url": new_gist['html_url'],
+                    "raw_url": new_gist['files'][f'{name}.json']['raw_url'],
+                    "gist_id": new_gist['id']
+                }
+            else:
+                # Если ошибка другая (не 404), останавливаем скрипт
+                update_resp.raise_for_status()
         else:
             print(f"Создание нового Gist для '{name}'...")
             create_resp = requests.post("https://api.github.com/gists", headers=HEADERS, json=gist_payload)
             create_resp.raise_for_status()
             new_gist = create_resp.json()
-            
+
             # Сохраняем ссылки для мастера
             configs_map[name] = {
                 "name": name,
