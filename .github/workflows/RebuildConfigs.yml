@@ -1,0 +1,32 @@
+name: Build VLESS Configs
+
+on:
+  push:
+    paths:
+      - 'config.template.json'
+  workflow_dispatch: # Оставляем возможность запускать вручную
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Generate Configs and Update Gists
+        env:
+          GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
+          MASTER_GIST_ID: ${{ secrets.MASTER_GIST_ID }}
+          CONNECTIONS_GIST_ID: ${{ secrets.CONNECTIONS_GIST_ID }} 
+        run: python generate_configs.py
+
+        
