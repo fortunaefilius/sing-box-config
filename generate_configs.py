@@ -72,19 +72,52 @@ def main():
         new_gist = create_resp.json()
         master_gist_url = new_gist['url']
         
-        # --- БЕЗОПАСНАЯ ГЕНЕРАЦИЯ GITHUB ACTIONS WARNING ---
         warning_msg = "Был создан новый Мастер-гист. В целях безопасности его ID скрыт. Пожалуйста, найдите новый Gist в своем профиле и обновите секрет MASTER_GIST_ID."
         print(f"::warning title=Требуется обновление секрета MASTER_GIST_ID::{warning_msg}")
-        # ----------------------------------------
 
         print("\n" + "="*50)
         print("⚠️ ВАЖНО: БЫЛ СОЗДАН НОВЫЙ МАСТЕР-ГИСТ!")
-        print("Новый Gist успешно создан, но так как репозиторий публичный, ID скрыт из логов.")
         print("Зайдите на https://gist.github.com/, найдите Gist с описанием 'VLESS Master Configs Map'")
         print("и скопируйте его ID для обновления секрета MASTER_GIST_ID!")
         print("="*50 + "\n")
 
-    # 4. Обрабатываем каждую VLESS ссылку
+    # --- 4. ФАЗА СКАНИРОВАНИЯ (DISCOVERY) СУЩЕСТВУЮЩИХ КОНФИГОВ ---
+    print("Сканирование существующих Gist-файлов для восстановления связей...")
+    page = 1
+    discovered_configs = {}
+    
+    while True:
+        resp = requests.get(f"https://api.github.com/gists?per_page=100&page={page}", headers=HEADERS)
+        if resp.status_code != 200:
+            break
+            
+        gists = resp.json()
+        if not gists:
+            break # Достигли конца списка
+            
+        for gist in gists:
+            desc = gist.get('description', '')
+            # Ищем гисты, созданные нашим скриптом
+            if desc and desc.startswith("Sing-box VLESS Config: "):
+                name = desc.replace("Sing-box VLESS Config: ", "").strip()
+                # Убеждаемся, что внутри есть нужный JSON файл
+                if f"{name}.json" in gist['files']:
+                    discovered_configs[name] = {
+                        "name": name,
+                        "gist_url": gist['html_url'],
+                        "raw_url": gist['files'][f'{name}.json']['raw_url'],
+                        "gist_id": gist['id']
+                    }
+        page += 1
+
+    # Восстанавливаем потерянные связи в памяти скрипта
+    for name, data in discovered_configs.items():
+        if name not in configs_map:
+            print(f"Найден потерянный Gist для '{name}'. Связь восстановлена (без дублирования).")
+            configs_map[name] = data
+    # --------------------------------------------------------------
+
+    # 5. Обрабатываем каждую VLESS ссылку
     for link in vless_links:
         if not isinstance(link, str) or not link.startswith("vless://"):
             continue
@@ -119,19 +152,19 @@ def main():
             }
         }
 
-        # 5. Проверяем существование Gist в нашей карте
+        # 6. Проверяем существование Gist в нашей карте
         is_existing = False
         if name in configs_map and isinstance(configs_map[name], dict) and 'gist_id' in configs_map[name]:
             is_existing = True
 
-        # 6. Создаем или обновляем конфиги с самовосстановлением (404)
+        # 7. Создаем или обновляем конфиги
         if is_existing:
             gist_id = configs_map[name]['gist_id']
             print(f"Обновление Gist для '{name}'...")
             update_resp = requests.patch(f"https://api.github.com/gists/{gist_id}", headers=HEADERS, json=gist_payload)
             
             if update_resp.status_code == 404:
-                print(f"Gist для '{name}' удален. Создаем новый...")
+                print(f"Gist для '{name}' был физически удален. Создаем новый...")
                 create_resp = requests.post("https://api.github.com/gists", headers=HEADERS, json=gist_payload)
                 create_resp.raise_for_status()
                 new_gist = create_resp.json()
@@ -157,7 +190,7 @@ def main():
                 "gist_id": new_gist['id']
             }
 
-    # 7. Сохраняем результат
+    # 8. Сохраняем результат
     print("Сохранение списка конфигураций в configs.json...")
     master_payload = {
         "files": {
