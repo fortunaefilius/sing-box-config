@@ -101,12 +101,7 @@
       "mtu": 1400,
       "auto_route": true,
       "strict_route": true,
-      "stack": "mixed",
-      "include_package": [
-        "org.telegram.messenger",
-        "com.android.chrome",
-        "com.twitter.android"
-      ]
+      "stack": "mixed"
     }
   ],
   "outbounds": [
