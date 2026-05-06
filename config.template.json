@@ -170,6 +170,15 @@
         "action": "sniff"
       },
       {
+        "inbound": ["tun-in"],
+        "package_name": [
+          "org.telegram.messenger",
+          "com.android.chrome" 
+        ],
+        "invert": true,
+        "outbound": "block"
+      },      
+      {
         "network": "udp",
         "port": 443,
         "action": "reject"
