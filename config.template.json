@@ -176,7 +176,8 @@
           "com.android.chrome" 
         ],
         "invert": true,
-        "outbound": "block"
+        "action": "reject",
+        "method": "drop"
       },      
       {
         "network": "udp",
