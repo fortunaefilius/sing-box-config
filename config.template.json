@@ -30,6 +30,22 @@
     ],
     "rules": [
       {
+        "package_name": [
+          "org.telegram.messenger",
+          "org.thunderdog.challegram",
+          "com.whatsapp",
+          "com.instagram.android",
+          "com.google.android.youtube",
+          "com.facebook.katana",
+          "com.zhiliaoapp.musically",
+          "com.ss.android.ugc.trill",
+          "com.github.android",
+          "com.brave.browser"
+        ],
+        "invert": true,
+        "server": "local-dns"
+      },
+      {
         "rule_set": "geosite-ads",
         "action": "reject"
       },
@@ -173,10 +189,18 @@
         "inbound": ["tun-in"],
         "package_name": [
           "org.telegram.messenger",
-          "com.android.chrome" 
+          "org.thunderdog.challegram",
+          "com.whatsapp",
+          "com.instagram.android",
+          "com.google.android.youtube",
+          "com.facebook.katana",
+          "com.zhiliaoapp.musically",
+          "com.ss.android.ugc.trill",
+          "com.github.android",
+          "com.brave.browser"
         ],
         "invert": true,
-        "outbound": "direct"
+        "outbound": "block"
       },      
       {
         "network": "udp",
