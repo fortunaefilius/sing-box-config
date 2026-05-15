@@ -146,10 +146,6 @@
     {
       "type": "direct",
       "tag": "direct"
-    },
-    {
-      "type": "block",
-      "tag": "block"
     }
   ],
   "route": {
@@ -200,7 +196,8 @@
           "com.brave.browser"
         ],
         "invert": true,
-        "outbound": "block"
+        "action": "reject",
+        "method": "drop"
       },      
       {
         "network": "udp",
