@@ -30,22 +30,6 @@
     ],
     "rules": [
       {
-        "package_name": [
-          "org.telegram.messenger",
-          "org.thunderdog.challegram",
-          "com.whatsapp",
-          "com.instagram.android",
-          "com.google.android.youtube",
-          "com.facebook.katana",
-          "com.zhiliaoapp.musically",
-          "com.ss.android.ugc.trill",
-          "com.github.android",
-          "com.brave.browser"
-        ],
-        "invert": true,
-        "server": "local-dns"
-      },
-      {
         "rule_set": "geosite-ads",
         "action": "reject"
       },
@@ -117,7 +101,19 @@
       "mtu": 1400,
       "auto_route": true,
       "strict_route": true,
-      "stack": "mixed"
+      "stack": "mixed",
+      "include_package": [
+        "org.telegram.messenger",
+        "org.thunderdog.challegram",
+        "com.whatsapp",
+        "com.instagram.android",
+        "com.google.android.youtube",
+        "com.facebook.katana",
+        "com.zhiliaoapp.musically",
+        "com.ss.android.ugc.trill",
+        "com.github.android",
+        "com.brave.browser"
+      ]
     }
   ],
   "outbounds": [
