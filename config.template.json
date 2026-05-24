@@ -112,7 +112,8 @@
         "com.zhiliaoapp.musically",
         "com.ss.android.ugc.trill",
         "com.github.android",
-        "com.brave.browser"
+        "com.brave.browser",
+        "org.zwanoo.android.speedtest"
       ]
     }
   ],
