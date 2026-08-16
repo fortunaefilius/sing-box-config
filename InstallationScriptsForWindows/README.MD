@@ -1,4 +1,4 @@
-Don't forget to modify the INI file according to your config gist hyperlink
+Don't forget to modify the INI file according to **your config gist hyperlink**
 
 Example:
 
