@@ -6,6 +6,8 @@ import requests
 GIST_TOKEN = os.environ.get('GIST_TOKEN')
 MASTER_GIST_ID = os.environ.get('MASTER_GIST_ID')
 CONNECTIONS_GIST_ID = os.environ.get('CONNECTIONS_GIST_ID')
+ANDROID_GIST_ID = os.environ.get('ANDROID_GIST_ID')
+WINDOWS_GIST_ID = os.environ.get('WINDOWS_GIST_ID')
 
 HEADERS = {
     "Accept": "application/vnd.github+json",
@@ -13,26 +15,68 @@ HEADERS = {
     "X-GitHub-Api-Version": "2022-11-28"
 }
 
+def fetch_gist_content(gist_id):
+    if not gist_id:
+        return None
+    try:
+        url = f"https://api.github.com/gists/{gist_id}"
+        resp = requests.get(url, headers=HEADERS)
+        resp.raise_for_status()
+        files = resp.json().get('files', {})
+        first_key = list(files.keys())[0]
+        return files[first_key]['content']
+    except Exception as e:
+        print(f"Ошибка получения Gist {gist_id}: {e}")
+        return None
+
+def build_config(template_str, uuid, server_ip, sni, pbk, sid, apps_list, platform):
+    """Генерирует валидный JSON конфиг в зависимости от платформы."""
+    field_name = "package_name" if platform == "android" else "process_name"
+    
+    # 1. Заменяем базовые строковые плейсхолдеры
+    raw_str = template_str.replace('${VLESS_UUID}', str(uuid)) \
+                           .replace('${SERVER_IP}', str(server_ip)) \
+                           .replace('${SERVER_SNI}', str(sni)) \
+                           .replace('${PUBLIC_KEY}', str(pbk)) \
+                           .replace('${SHORT_ID}', str(sid)) \
+                           .replace('${APPS_FIELD_NAME}', field_name) \
+                           .replace('"${APPS_LIST}"', json.dumps(apps_list))
+
+    # 2. Преобразуем в объект JSON для манипуляций со структурой
+    config = json.loads(raw_str)
+
+    # 3. Для Windows удаляем include_package из inbounds
+    if platform == "windows":
+        for inbound in config.get('inbounds', []):
+            if 'include_package' in inbound:
+                del inbound['include_package']
+
+    return json.dumps(config, indent=2, ensure_ascii=False)
+
 def main():
     # 1. Читаем темплейт
     with open('config.template.json', 'r', encoding='utf-8') as f:
         template_str = f.read()
 
-    # 2. Скачиваем список ссылок из Секретного Gist
+    # 2. Скачиваем VLESS ссылки
+    vless_raw = fetch_gist_content(CONNECTIONS_GIST_ID)
+    if not vless_raw:
+        print("Не удалось загрузить vless ссылки.")
+        return
+    vless_links = json.loads(vless_raw)
+
+    # 3. Скачиваем списки пакетов/процессов
+    android_raw = fetch_gist_content(ANDROID_GIST_ID) or "[]"
+    windows_raw = fetch_gist_content(WINDOWS_GIST_ID) or "[]"
+
     try:
-        conn_gist_url = f"https://api.github.com/gists/{CONNECTIONS_GIST_ID}"
-        conn_response = requests.get(conn_gist_url, headers=HEADERS)
-        conn_response.raise_for_status()
-        
-        files = conn_response.json().get('files', {})
-        first_file_key = list(files.keys())[0] 
-        vless_links_raw = files[first_file_key]['content']
-        vless_links = json.loads(vless_links_raw)
+        android_apps = json.loads(android_raw)
+        windows_apps = json.loads(windows_raw)
     except Exception as e:
-        print(f"Ошибка при получении списка ссылок: {e}")
+        print(f"Ошибка парсинга списков приложений: {e}")
         return
 
-    # 3. Умная обработка Мастер-гиста (configs.json)
+    # 4. Обработка Мастер-гиста (configs.json)
     configs_map = {}
     master_gist_url = None
     needs_new_master = False
@@ -52,14 +96,12 @@ def main():
                 except json.JSONDecodeError:
                     pass
         elif response.status_code == 404:
-            print("Внимание: Мастер-гист по указанному ID не найден (вероятно, удален).")
             needs_new_master = True
         else:
             response.raise_for_status()
     else:
         needs_new_master = True
 
-    # Создаем новый Мастер-гист, если ID не указан или старый удален
     if needs_new_master:
         print("Создание нового Мастер-гиста...")
         payload = {
@@ -71,53 +113,38 @@ def main():
         create_resp.raise_for_status()
         new_gist = create_resp.json()
         master_gist_url = new_gist['url']
-        
-        warning_msg = "Был создан новый Мастер-гист. В целях безопасности его ID скрыт. Пожалуйста, найдите новый Gist в своем профиле и обновите секрет MASTER_GIST_ID."
-        print(f"::warning title=Требуется обновление секрета MASTER_GIST_ID::{warning_msg}")
+        print(f"::warning title=MASTER_GIST_ID::Создан новый Мастер-гист ID: {new_gist['id']}")
 
-        print("\n" + "="*50)
-        print("⚠️ ВАЖНО: БЫЛ СОЗДАН НОВЫЙ МАСТЕР-ГИСТ!")
-        print("Зайдите на https://gist.github.com/, найдите Gist с описанием 'VLESS Master Configs Map'")
-        print("и скопируйте его ID для обновления секрета MASTER_GIST_ID!")
-        print("="*50 + "\n")
-
-    # --- 4. ФАЗА СКАНИРОВАНИЯ (DISCOVERY) СУЩЕСТВУЮЩИХ КОНФИГОВ ---
-    print("Сканирование существующих Gist-файлов для восстановления связей...")
+    # 5. Discovery фаза
+    print("Сканирование существующих Gist-файлов...")
     page = 1
     discovered_configs = {}
     
     while True:
         resp = requests.get(f"https://api.github.com/gists?per_page=100&page={page}", headers=HEADERS)
-        if resp.status_code != 200:
+        if resp.status_code != 200 or not resp.json():
             break
             
-        gists = resp.json()
-        if not gists:
-            break # Достигли конца списка
-            
-        for gist in gists:
+        for gist in resp.json():
             desc = gist.get('description', '')
-            # Ищем гисты, созданные нашим скриптом
             if desc and desc.startswith("Sing-box VLESS Config: "):
                 name = desc.replace("Sing-box VLESS Config: ", "").strip()
-                # Убеждаемся, что внутри есть нужный JSON файл
-                if f"{name}.json" in gist['files']:
-                    discovered_configs[name] = {
-                        "name": name,
-                        "gist_url": gist['html_url'],
-                        "raw_url": gist['files'][f'{name}.json']['raw_url'],
-                        "gist_id": gist['id']
+                discovered_configs[name] = {
+                    "name": name,
+                    "gist_url": gist['html_url'],
+                    "gist_id": gist['id'],
+                    "files": {
+                        f"{name}_android.json": gist['files'].get(f"{name}_android.json", {}).get('raw_url', ''),
+                        f"{name}_windows.json": gist['files'].get(f"{name}_windows.json", {}).get('raw_url', '')
                     }
+                }
         page += 1
 
-    # Восстанавливаем потерянные связи в памяти скрипта
     for name, data in discovered_configs.items():
         if name not in configs_map:
-            print(f"Найден потерянный Gist для '{name}'. Связь восстановлена (без дублирования).")
             configs_map[name] = data
-    # --------------------------------------------------------------
 
-    # 5. Обрабатываем каждую VLESS ссылку
+    # 6. Генерация двух конфигов для каждого сервера VLESS
     for link in vless_links:
         if not isinstance(link, str) or not link.startswith("vless://"):
             continue
@@ -127,56 +154,51 @@ def main():
         
         uuid = parsed.username
         server_ip = parsed.hostname
-        name = urllib.parse.unquote(parsed.fragment)
+        name = urllib.parse.unquote(parsed.fragment) or f"Unnamed_VLESS_{server_ip}"
         
         sni = params.get('sni', [''])[0]
         pbk = params.get('pbk', [''])[0]
         sid = params.get('sid', [''])[0]
 
-        if not name:
-            name = f"Unnamed_VLESS_{server_ip}"
-
-        config_content = template_str.replace('${VLESS_UUID}', str(uuid)) \
-                                     .replace('${SERVER_IP}', str(server_ip)) \
-                                     .replace('${SERVER_SNI}', str(sni)) \
-                                     .replace('${PUBLIC_KEY}', str(pbk)) \
-                                     .replace('${SHORT_ID}', str(sid))
+        # Собираем платформенные конфиги
+        android_config_json = build_config(template_str, uuid, server_ip, sni, pbk, sid, android_apps, "android")
+        windows_config_json = build_config(template_str, uuid, server_ip, sni, pbk, sid, windows_apps, "windows")
 
         gist_payload = {
             "description": f"Sing-box VLESS Config: {name}",
             "public": False,
             "files": {
-                f"{name}.json": {
-                    "content": config_content
-                }
+                f"{name}_android.json": {"content": android_config_json},
+                f"{name}_windows.json": {"content": windows_config_json}
             }
         }
 
-        # 6. Проверяем существование Gist в нашей карте
-        is_existing = False
-        if name in configs_map and isinstance(configs_map[name], dict) and 'gist_id' in configs_map[name]:
-            is_existing = True
-
-        # 7. Создаем или обновляем конфиги
-        if is_existing:
+        # 7. Обновление или создание Gist
+        if name in configs_map and 'gist_id' in configs_map[name]:
             gist_id = configs_map[name]['gist_id']
             print(f"Обновление Gist для '{name}'...")
             update_resp = requests.patch(f"https://api.github.com/gists/{gist_id}", headers=HEADERS, json=gist_payload)
             
             if update_resp.status_code == 404:
-                print(f"Gist для '{name}' был физически удален. Создаем новый...")
                 create_resp = requests.post("https://api.github.com/gists", headers=HEADERS, json=gist_payload)
                 create_resp.raise_for_status()
                 new_gist = create_resp.json()
-                
                 configs_map[name] = {
                     "name": name,
                     "gist_url": new_gist['html_url'],
-                    "raw_url": new_gist['files'][f'{name}.json']['raw_url'],
-                    "gist_id": new_gist['id']
+                    "gist_id": new_gist['id'],
+                    "files": {
+                        f"{name}_android.json": new_gist['files'][f"{name}_android.json"]['raw_url'],
+                        f"{name}_windows.json": new_gist['files'][f"{name}_windows.json"]['raw_url']
+                    }
                 }
             else:
                 update_resp.raise_for_status()
+                updated_files = update_resp.json().get('files', {})
+                configs_map[name]["files"] = {
+                    f"{name}_android.json": updated_files.get(f"{name}_android.json", {}).get('raw_url', ''),
+                    f"{name}_windows.json": updated_files.get(f"{name}_windows.json", {}).get('raw_url', '')
+                }
         else:
             print(f"Создание нового Gist для '{name}'...")
             create_resp = requests.post("https://api.github.com/gists", headers=HEADERS, json=gist_payload)
@@ -186,12 +208,15 @@ def main():
             configs_map[name] = {
                 "name": name,
                 "gist_url": new_gist['html_url'],
-                "raw_url": new_gist['files'][f'{name}.json']['raw_url'],
-                "gist_id": new_gist['id']
+                "gist_id": new_gist['id'],
+                "files": {
+                    f"{name}_android.json": new_gist['files'][f"{name}_android.json"]['raw_url'],
+                    f"{name}_windows.json": new_gist['files'][f"{name}_windows.json"]['raw_url']
+                }
             }
 
-    # 8. Сохраняем результат
-    print("Сохранение списка конфигураций в configs.json...")
+    # 8. Сохранение карты конфигураций
+    print("Сохранение реестра конфигураций в configs.json...")
     master_payload = {
         "files": {
             "configs.json": {
