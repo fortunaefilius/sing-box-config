@@ -15,6 +15,21 @@ HEADERS = {
     "X-GitHub-Api-Version": "2022-11-28"
 }
 
+def get_clean_raw_url(raw_url):
+    """Преобразует raw_url с commit_hash в перманентную ссылку без соли."""
+    if not raw_url:
+        return ""
+    # Разбиваем ссылку по фрагменту '/raw/'
+    parts = raw_url.split('/raw/')
+    if len(parts) == 2:
+        # parts[1] имеет вид: 'commit_hash/filename.json'
+        subparts = parts[1].split('/')
+        if len(subparts) > 1:
+            # Отбрасываем хеш коммита и оставляем только имя файла
+            filename = '/'.join(subparts[1:])
+            return f"{parts[0]}/raw/{filename}"
+    return raw_url
+
 def fetch_gist_content(gist_id):
     if not gist_id:
         return None
@@ -30,10 +45,9 @@ def fetch_gist_content(gist_id):
         return None
 
 def build_config(template_str, uuid, server_ip, sni, pbk, sid, apps_list, platform):
-    """Генерирует валидный JSON конфиг в зависимости от платформы."""
+    """Генерирует JSON конфигурацию под нужную платформу."""
     field_name = "package_name" if platform == "android" else "process_name"
     
-    # 1. Заменяем базовые строковые плейсхолдеры
     raw_str = template_str.replace('${VLESS_UUID}', str(uuid)) \
                            .replace('${SERVER_IP}', str(server_ip)) \
                            .replace('${SERVER_SNI}', str(sni)) \
@@ -42,10 +56,8 @@ def build_config(template_str, uuid, server_ip, sni, pbk, sid, apps_list, platfo
                            .replace('${APPS_FIELD_NAME}', field_name) \
                            .replace('"${APPS_LIST}"', json.dumps(apps_list))
 
-    # 2. Преобразуем в объект JSON для манипуляций со структурой
     config = json.loads(raw_str)
 
-    # 3. Для Windows удаляем include_package из inbounds
     if platform == "windows":
         for inbound in config.get('inbounds', []):
             if 'include_package' in inbound:
@@ -54,7 +66,7 @@ def build_config(template_str, uuid, server_ip, sni, pbk, sid, apps_list, platfo
     return json.dumps(config, indent=2, ensure_ascii=False)
 
 def main():
-    # 1. Читаем темплейт
+    # 1. Читаем шаблон
     with open('config.template.json', 'r', encoding='utf-8') as f:
         template_str = f.read()
 
@@ -129,13 +141,17 @@ def main():
             desc = gist.get('description', '')
             if desc and desc.startswith("Sing-box VLESS Config: "):
                 name = desc.replace("Sing-box VLESS Config: ", "").strip()
+                
+                android_raw_url = gist['files'].get(f"{name}_android.json", {}).get('raw_url', '')
+                windows_raw_url = gist['files'].get(f"{name}_windows.json", {}).get('raw_url', '')
+                
                 discovered_configs[name] = {
                     "name": name,
                     "gist_url": gist['html_url'],
                     "gist_id": gist['id'],
                     "files": {
-                        f"{name}_android.json": gist['files'].get(f"{name}_android.json", {}).get('raw_url', ''),
-                        f"{name}_windows.json": gist['files'].get(f"{name}_windows.json", {}).get('raw_url', '')
+                        f"{name}_android.json": get_clean_raw_url(android_raw_url),
+                        f"{name}_windows.json": get_clean_raw_url(windows_raw_url)
                     }
                 }
         page += 1
@@ -144,7 +160,7 @@ def main():
         if name not in configs_map:
             configs_map[name] = data
 
-    # 6. Генерация двух конфигов для каждого сервера VLESS
+    # 6. Генерация конфигов для каждого сервера VLESS
     for link in vless_links:
         if not isinstance(link, str) or not link.startswith("vless://"):
             continue
@@ -160,7 +176,6 @@ def main():
         pbk = params.get('pbk', [''])[0]
         sid = params.get('sid', [''])[0]
 
-        # Собираем платформенные конфиги
         android_config_json = build_config(template_str, uuid, server_ip, sni, pbk, sid, android_apps, "android")
         windows_config_json = build_config(template_str, uuid, server_ip, sni, pbk, sid, windows_apps, "windows")
 
@@ -183,21 +198,26 @@ def main():
                 create_resp = requests.post("https://api.github.com/gists", headers=HEADERS, json=gist_payload)
                 create_resp.raise_for_status()
                 new_gist = create_resp.json()
+                
                 configs_map[name] = {
                     "name": name,
                     "gist_url": new_gist['html_url'],
                     "gist_id": new_gist['id'],
                     "files": {
-                        f"{name}_android.json": new_gist['files'][f"{name}_android.json"]['raw_url'],
-                        f"{name}_windows.json": new_gist['files'][f"{name}_windows.json"]['raw_url']
+                        f"{name}_android.json": get_clean_raw_url(new_gist['files'][f"{name}_android.json"]['raw_url']),
+                        f"{name}_windows.json": get_clean_raw_url(new_gist['files'][f"{name}_windows.json"]['raw_url'])
                     }
                 }
             else:
                 update_resp.raise_for_status()
                 updated_files = update_resp.json().get('files', {})
+                
+                android_raw = updated_files.get(f"{name}_android.json", {}).get('raw_url', '')
+                windows_raw = updated_files.get(f"{name}_windows.json", {}).get('raw_url', '')
+                
                 configs_map[name]["files"] = {
-                    f"{name}_android.json": updated_files.get(f"{name}_android.json", {}).get('raw_url', ''),
-                    f"{name}_windows.json": updated_files.get(f"{name}_windows.json", {}).get('raw_url', '')
+                    f"{name}_android.json": get_clean_raw_url(android_raw),
+                    f"{name}_windows.json": get_clean_raw_url(windows_raw)
                 }
         else:
             print(f"Создание нового Gist для '{name}'...")
@@ -210,12 +230,12 @@ def main():
                 "gist_url": new_gist['html_url'],
                 "gist_id": new_gist['id'],
                 "files": {
-                    f"{name}_android.json": new_gist['files'][f"{name}_android.json"]['raw_url'],
-                    f"{name}_windows.json": new_gist['files'][f"{name}_windows.json"]['raw_url']
+                    f"{name}_android.json": get_clean_raw_url(new_gist['files'][f"{name}_android.json"]['raw_url']),
+                    f"{name}_windows.json": get_clean_raw_url(new_gist['files'][f"{name}_windows.json"]['raw_url'])
                 }
             }
 
-    # 8. Сохранение карты конфигураций
+    # 8. Сохранение реестра конфигураций
     print("Сохранение реестра конфигураций в configs.json...")
     master_payload = {
         "files": {
