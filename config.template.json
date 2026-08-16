@@ -102,19 +102,7 @@
       "auto_route": true,
       "strict_route": true,
       "stack": "mixed",
-      "include_package": [
-        "org.telegram.messenger",
-        "org.thunderdog.challegram",
-        "com.whatsapp",
-        "com.instagram.android",
-        "com.google.android.youtube",
-        "com.facebook.katana",
-        "com.zhiliaoapp.musically",
-        "com.ss.android.ugc.trill",
-        "com.github.android",
-        "com.brave.browser",
-        "org.zwanoo.android.speedtest"
-      ]
+      "include_package": "${APPS_LIST}"
     }
   ],
   "outbounds": [
@@ -180,19 +168,7 @@
       },
       {
         "inbound": ["tun-in"],
-        "package_name": [
-          "org.telegram.messenger",
-          "org.thunderdog.challegram",
-          "com.whatsapp",
-          "com.instagram.android",
-          "com.google.android.youtube",
-          "com.facebook.katana",
-          "com.zhiliaoapp.musically",
-          "com.ss.android.ugc.trill",
-          "com.github.android",
-          "com.brave.browser",
-          "org.zwanoo.android.speedtest"
-        ],
+        "${APPS_FIELD_NAME}": "${APPS_LIST}",
         "invert": true,
         "action": "reject",
         "method": "drop"
