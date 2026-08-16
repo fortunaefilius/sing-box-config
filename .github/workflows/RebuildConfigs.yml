@@ -27,4 +27,6 @@ jobs:
           GIST_TOKEN: ${{ secrets.GIST_TOKEN }}
           MASTER_GIST_ID: ${{ secrets.MASTER_GIST_ID }}
           CONNECTIONS_GIST_ID: ${{ secrets.CONNECTIONS_GIST_ID }}
+          ANDROID_GIST_ID: ${{ secrets.ANDROID_GIST_ID }}
+          WINDOWS_GIST_ID: ${{ secrets.WINDOWS_GIST_ID }}
         run: python generate_configs.py
