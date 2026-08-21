@@ -167,6 +167,14 @@
         "action": "sniff"
       },
       {
+        "protocol": "dns",
+        "action": "hijack-dns"
+      },
+      {
+        "port": 53,
+        "action": "hijack-dns"
+      },
+      {
         "inbound": ["tun-in"],
         "${APPS_FIELD_NAME}": "${APPS_LIST}",
         "invert": true,
@@ -177,14 +185,6 @@
         "network": "udp",
         "port": 443,
         "action": "reject"
-      },
-      {
-        "protocol": "dns",
-        "action": "hijack-dns"
-      },
-      {
-        "port": 53,
-        "action": "hijack-dns"
       },
       {
         "ip_cidr": [
