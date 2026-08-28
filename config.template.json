@@ -60,7 +60,7 @@
         "action": "reject"
       },
       {
-        "tag": "geosite-category-ru",
+        "rule_set": "geosite-category-ru",
         "ip_version": 4,
         "server": "local-dns"
       },
