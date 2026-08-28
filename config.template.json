@@ -76,11 +76,7 @@
           " .ntp.org"
         ],
         "server": "local-dns",
-        "rule_set": [
-          {
-            "ip_version": 4
-          }
-        ]
+        "ip_version": 4
       },
       {
         "query_type": [
