@@ -80,7 +80,11 @@
           " .ntp.org"
         ],
         "server": "local-dns",
-        "ip_version": 4
+        "rule_set": [
+          {
+            "ip_version": 4
+          }
+        ]
       },
       {
         "query_type": [
