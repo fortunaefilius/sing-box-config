@@ -60,10 +60,14 @@
         "action": "reject"
       },
       {
-        "rule_set": "geosite-category-ru",
-        "server": "local-dns",
-        "ip_version": 4
-      },
+        "rule_set": [
+          {
+            "tag": "geosite-category-ru",
+            "ip_version": 4
+          }
+        ],
+        "server": "local-dns"
+      }
       {
         "domain_suffix": [
           "by",
