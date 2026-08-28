@@ -67,7 +67,7 @@
           }
         ],
         "server": "local-dns"
-      }
+      },
       {
         "domain_suffix": [
           "by",
