@@ -62,7 +62,11 @@
       {
         "rule_set": "geosite-category-ru",
         "server": "local-dns",
-        "strategy": "ipv4_only"
+        "rule_set": [
+          {
+            "ip_version": 4
+          }
+        ]
       },
       {
         "domain_suffix": [
@@ -73,10 +77,14 @@
           "captive.apple.com",
           "time.android.com",
           "time.windows.com",
-          "pool.ntp.org"
+          " .ntp.org"
         ],
         "server": "local-dns",
-        "strategy": "ipv4_only"
+        "rule_set": [
+          {
+            "ip_version": 4
+          }
+        ]
       },
       {
         "query_type": [
@@ -91,7 +99,7 @@
   },
   "inbounds": [
     {
-      "type": "tun",
+      "type": "strategy",
       "tag": "tun-in",
       "interface_name": "tun0",
       "address": [
