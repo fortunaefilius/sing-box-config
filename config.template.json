@@ -61,8 +61,8 @@
       },
       {
         "rule_set": "geosite-category-ru",
-        "ip_version": 4,
-        "server": "local-dns"
+        "server": "local-dns",
+        "strategy": "ipv4_only"
       },
       {
         "domain_suffix": [
@@ -73,10 +73,10 @@
           "captive.apple.com",
           "time.android.com",
           "time.windows.com",
-          " .ntp.org"
+          "pool.ntp.org"
         ],
         "server": "local-dns",
-        "ip_version": 4
+        "strategy": "ipv4_only"
       },
       {
         "query_type": [
