@@ -59,9 +59,17 @@ def build_config(template_str, uuid, server_ip, sni, pbk, sid, apps_list, platfo
     config = json.loads(raw_str)
 
     if platform == "windows":
+        # 1. Удаляем include_package из inbounds
         for inbound in config.get('inbounds', []):
             if 'include_package' in inbound:
                 del inbound['include_package']
+
+        # 2. Чистое удаление правила фильтрации по процессам из route.rules
+        if 'route' in config and 'rules' in config['route']:
+            config['route']['rules'] = [
+                rule for rule in config['route']['rules']
+                if 'process_name' not in rule and '${APPS_FIELD_NAME}' not in rule
+            ]
 
     return json.dumps(config, indent=2, ensure_ascii=False)
 
