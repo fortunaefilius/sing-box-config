@@ -1,14 +1,12 @@
 {
   "log": {
     "level": "warn"
-  },
-  "dns": {
+  },"dns": {
     "servers": [
       {
         "tag": "local-dns",
         "type": "local",
-        "detour": "direct",
-        "strategy": "ipv4_only"
+        "detour": "direct"
       },
       {
         "tag": "remote-dns",
@@ -62,8 +60,9 @@
       },
       {
         "rule_set": "geosite-category-ru",
+        "action": "route",
         "server": "local-dns",
-        "action": "route"
+        "strategy": "ipv4_only"
       },
       {
         "domain_suffix": [
@@ -76,16 +75,17 @@
           "time.windows.com",
           "pool.ntp.org"
         ],
+        "action": "route",
         "server": "local-dns",
-        "action": "route"
+        "strategy": "ipv4_only"
       },
       {
         "query_type": [
           "A",
           "AAAA"
         ],
-        "server": "fakeip-dns",
-        "action": "route"
+        "action": "route",
+        "server": "fakeip-dns"
       }
     ],
     "final": "remote-dns",
