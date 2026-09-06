@@ -7,7 +7,8 @@
       {
         "tag": "local-dns",
         "type": "local",
-        "detour": "direct"
+        "detour": "direct",
+        "strategy": "ipv4_only"
       },
       {
         "tag": "remote-dns",
@@ -62,7 +63,7 @@
       {
         "rule_set": "geosite-category-ru",
         "server": "local-dns",
-        "strategy": "ipv4_only"
+        "action": "route"
       },
       {
         "domain_suffix": [
@@ -76,14 +77,15 @@
           "pool.ntp.org"
         ],
         "server": "local-dns",
-        "strategy": "ipv4_only"
+        "action": "route"
       },
       {
         "query_type": [
           "A",
           "AAAA"
         ],
-        "server": "fakeip-dns"
+        "server": "fakeip-dns",
+        "action": "route"
       }
     ],
     "final": "remote-dns",
