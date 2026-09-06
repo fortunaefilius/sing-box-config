@@ -60,20 +60,9 @@
         "action": "reject"
       },
       {
-        "domain_suffix": [
-          "telegram.org",
-          "telegram.dog",
-          "telegram.me",
-          "t.me",
-          "tdesktop.com"
-        ],
-        "server": "remote-dns",
-        "action": "route"
-      },
-      {
         "rule_set": "geosite-category-ru",
-        "ip_version": 6,
-        "action": "reject"
+        "server": "local-dns",
+        "strategy": "ipv4_only"
       },
       {
         "domain_suffix": [
@@ -86,40 +75,19 @@
           "time.windows.com",
           "pool.ntp.org"
         ],
-        "ip_version": 6,
-        "action": "reject"
-      },
-      {
-        "rule_set": "geosite-category-ru",
-        "ip_version": 4,
         "server": "local-dns",
-        "action": "route"
-      },
-      {
-        "domain_suffix": [
-          "by",
-          "yadi.sk",
-          "livejournal.com",
-          "connectivitycheck.gstatic.com",
-          "captive.apple.com",
-          "time.android.com",
-          "time.windows.com",
-          "pool.ntp.org"
-        ],
-        "ip_version": 4,
-        "server": "local-dns",
-        "action": "route"
+        "strategy": "ipv4_only"
       },
       {
         "query_type": [
           "A",
           "AAAA"
         ],
-        "server": "fakeip-dns",
-        "action": "route"
+        "server": "fakeip-dns"
       }
     ],
-    "final": "remote-dns"
+    "final": "remote-dns",
+    "independent_cache": true
   },
   "inbounds": [
     {
