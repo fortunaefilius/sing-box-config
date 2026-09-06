@@ -109,6 +109,14 @@
         "ip_version": 4,
         "server": "local-dns",
         "action": "route"
+      },
+      {
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
+        "server": "fakeip-dns",
+        "action": "route"
       }
     ],
     "final": "remote-dns"
