@@ -34,7 +34,10 @@
         "action": "reject"
       },
       {
-        "domain_keyword": ["ymetrica", "hotjar"],
+        "domain_keyword": [
+          "ymetrica",
+          "hotjar"
+        ],
         "action": "reject"
       },
       {
@@ -58,7 +61,6 @@
       },
       {
         "rule_set": "geosite-category-ru",
-        "action": "route",
         "server": "local-dns",
         "strategy": "ipv4_only"
       },
@@ -73,13 +75,14 @@
           "time.windows.com",
           "pool.ntp.org"
         ],
-        "action": "route",
         "server": "local-dns",
         "strategy": "ipv4_only"
       },
       {
-        "query_type": ["A", "AAAA"],
-        "action": "route",
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
         "server": "fakeip-dns"
       }
     ],
