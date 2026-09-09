@@ -60,17 +60,6 @@
         "action": "reject"
       },
       {
-        "domain_suffix": [
-          "telegram.org",
-          "telegram.dog",
-          "telegram.me",
-          "t.me",
-          "tdesktop.com"
-        ],
-        "server": "remote-dns",
-        "action": "route"
-      },
-      {
         "rule_set": "geosite-category-ru",
         "ip_version": 6,
         "action": "reject"
