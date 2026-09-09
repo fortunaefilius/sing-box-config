@@ -154,9 +154,18 @@
       "tag": "direct"
     }
   ],
+  "http_client": {
+    "clients": [
+      {
+        "tag": "proxy-client",
+        "detour": "proxy"
+      }
+    ]
+  },  
   "route": {
     "default_domain_resolver": "remote-dns",
     "auto_detect_interface": true,
+    "default_http_client": "proxy-client", 
     "rule_set": [
       {
         "tag": "geosite-ads",
