@@ -170,7 +170,6 @@
         "type": "remote",
         "format": "binary",
         "url": "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/sing-box/rule-set-geosite/geosite-category-ads-all.srs",
-        "detour": "proxy",
         "update_interval": "24h"
       },
       {
@@ -178,7 +177,6 @@
         "type": "remote",
         "format": "binary",
         "url": "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/sing-box/rule-set-geosite/geosite-category-ru.srs",
-        "detour": "proxy",
         "update_interval": "24h"
       },
       {
@@ -186,7 +184,6 @@
         "type": "remote",
         "format": "binary",
         "url": "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/sing-box/rule-set-geoip/geoip-ru.srs",
-        "detour": "proxy",
         "update_interval": "24h"
       }
     ],
