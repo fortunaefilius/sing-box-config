@@ -189,6 +189,21 @@
     ],
     "rules": [
       {
+        "ip_version": 6,
+        "ip_cidr": [
+          "fc00::/7",
+          "fe80::/10"
+        ],
+        "action": "reject"
+      },      
+      {
+        "inbound": ["tun-in"],
+        "${APPS_FIELD_NAME}": "${APPS_LIST}",
+        "invert": true,
+        "action": "reject",
+        "method": "drop"
+      },          
+      {
         "action": "sniff"
       },
       {
@@ -198,14 +213,7 @@
       {
         "port": 53,
         "action": "hijack-dns"
-      },
-      {
-        "inbound": ["tun-in"],
-        "${APPS_FIELD_NAME}": "${APPS_LIST}",
-        "invert": true,
-        "action": "reject",
-        "method": "drop"
-      },      
+      },  
       {
         "network": "udp",
         "port": 443,
@@ -217,14 +225,6 @@
           "fc00::/18"
         ],
         "outbound": "proxy"
-      },
-      {
-        "ip_version": 6,
-        "ip_cidr": [
-          "fc00::/7",
-          "fe80::/10"
-        ],
-        "action": "reject"
       },
       {
         "ip_cidr": [
