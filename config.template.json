@@ -6,7 +6,8 @@
     "servers": [
       {
         "tag": "local-dns",
-        "type": "local",
+        "type": "udp",
+        "server": "77.88.8.8",
         "detour": "direct"
       },
       {
