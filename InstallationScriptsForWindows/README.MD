@@ -5,3 +5,4 @@ Example:
 >[Settings]
 >
 >ConfigUrl=https://gist.githubusercontent.com/username/gist_id/raw/config_windows.json
+>Version=latest
