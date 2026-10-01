@@ -157,14 +157,7 @@
   "http_clients": [
     {
       "tag": "proxy-client",
-      "detour": "proxy",
-      "tls": {
-        "enabled": true,
-        "utls": {
-          "enabled": true,
-          "fingerprint": "chrome"
-        }
-      }
+      "detour": "proxy"
     }
   ],  
   "route": {
