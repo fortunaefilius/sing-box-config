@@ -16,7 +16,7 @@ function Test-Admin {
 if (-not (Test-Admin)) {
     $scriptPath = $MyInvocation.MyCommand.Path
     Start-Process -FilePath "powershell.exe" `
-        -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" `
+        -ArgumentList "-NoExit -NoProfile -ExecutionPolicy Bypass -File `"$scriptPath`"" `
         -Verb RunAs
     exit
 }
