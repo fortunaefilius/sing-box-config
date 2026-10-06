@@ -97,8 +97,8 @@ $Arch  = if ([Environment]::Is64BitOperatingSystem) { "amd64" } else { "386" }
 $Asset = $Release.assets | Where-Object { $_.name -match "windows-$Arch\.zip$" } | Select-Object -First 1
 if (-not $Asset) { throw "Archive for windows-$Arch not found in release $($Release.tag_name)" }
 
-$ZipPath     = Join-Path $env:TEMP $Asset.name
-$ExtractDir  = Join-Path $env:TEMP "sing-box-extract"
+$ZipPath     = Join-Path $InstallDir $Asset.name
+$ExtractDir  = Join-Path $InstallDir "extract"
 
 Write-Host "Downloading $($Asset.name)..." -ForegroundColor Cyan
 Invoke-WebRequest -Uri $Asset.browser_download_url -OutFile $ZipPath -UseBasicParsing
